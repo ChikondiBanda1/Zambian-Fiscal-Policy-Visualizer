@@ -2,27 +2,38 @@ import streamlit as st
 import PyPDF2
 import re
 
-st.title("Zambia Mining Audit: Policy Insights")
+st.title("🇿🇲 Zambian Mining Fiscal Policy Visualizer: Technical Summarization")
 
-uploaded_file = st.file_uploader("Upload the Amendment Act", type="pdf")
+uploaded_file = st.file_uploader("Upload a Mining Act", type="pdf")
 
 if uploaded_file:
     reader = PyPDF2.PdfReader(uploaded_file)
     text = " ".join([page.extract_text() or "" for page in reader.pages])
 
+    # 1. Version Detection
+    is_2016 = "2016" in text and "Amendment" in text
+    is_2015 = "2015" in text and not is_2016
     st.subheader("📊 Policy Breakdown")
 
     # Insight 1: Copper Pricing Tiers
-    if "copper" in text.lower():
+    if is_2016:
+        st.info("📂 Detected: Mines and Minerals Development (Amendment) Act, 2016")
+        # Apply the sliding scale logic
+        st.write("### 📊 2016 Variable Royalty Structure (Copper)")
         col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Low Tier", "4%", "Price < $4,500")
-        with col2:
-            st.metric("Mid Tier", "5%", "$4,500 - $6,000")
-        with col3:
-            st.metric("High Tier", "6%", "Price > $6,000")
-        st.info("💡 Insight: Zambia uses a sliding scale for copper. This is designed to capture more revenue when global prices are high.")
-
+        col1.metric("Low Tier", "4%", "< $4,500")
+        col2.metric("Mid Tier", "5%", "$4,500 - $6,000")
+        col3.metric("High Tier", "6%", "> $6,000")
+    elif is_2015:
+        st.info("📂 Detected: Mines and Minerals Development Act, 2015")
+        st.write("### 📊 2015 Fixed Royalty Structure")
+        st.warning("Note: The 2015 Act initially set higher flat rates (e.g., 9% for open-cast) before the 2016 amendment.")
+        # Regex to find any flat 'percent' mentions in the 2015 text
+        flat_rates = re.findall(r'(\d+)\s*percent', text)
+        st.write(f"Detected Flat Rates: {set(flat_rates)}")
+    else:
+        st.warning("Unknown Document Version. Proceeding with general text extraction.")
+        
     # Insight 2: High-Value Minerals
     precious = re.findall(r'(precious metals|gemstones).{1,50}(six percent|6%)', text, re.IGNORECASE)
     if precious:
