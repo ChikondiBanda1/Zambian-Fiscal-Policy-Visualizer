@@ -21,4 +21,5 @@ Legal jargon often acts as a barrier to inclusion. This app automates the extrac
 ## ⚖️ License
 MIT.
 
+## Attribution
 AI was used to generate the initial concept and assist in synthesizing the underlying code.
